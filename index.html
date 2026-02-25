@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gabriela – Professora IA | Escola Estadual Carlos Lencastre</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0f0c29;
+      --card: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.12);
+      --text: #f0f0ff;
+      --subtext: #a0a0cc;
+      --user-bubble: linear-gradient(135deg, #f7971e, #ffd200);
+      --ai-bubble: rgba(255,255,255,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+    }
+    .blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.25; animation: drift 12s ease-in-out infinite alternate; pointer-events: none; z-index: 0; }
+    .blob1 { width:500px; height:500px; background:#f953c6; top:-150px; left:-100px; }
+    .blob2 { width:400px; height:400px; background:#4facfe; bottom:-100px; right:-100px; animation-delay:3s; }
+    .blob3 { width:300px; height:300px; background:#ffd200; top:40%; left:40%; animation-delay:6s; }
+    @keyframes drift { from{transform:translate(0,0) scale(1)} to{transform:translate(30px,20px) scale(1.08)} }
+
+    header { position:relative; z-index:10; width:100%; max-width:780px; padding:20px 24px 0; display:flex; align-items:center; gap:16px; flex-shrink:0; }
+    .avatar { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#f953c6,#ffd200); display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; animation:pulse 2.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 20px rgba(249,83,198,0.5)} 50%{box-shadow:0 0 35px rgba(249,83,198,0.8),0 0 60px rgba(255,210,0,0.3)} }
+    .header-info h1 { font-family:'Pacifico',cursive; font-size:1.9rem; background:linear-gradient(135deg,#ffd200,#f953c6,#4facfe); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .header-info p { font-size:0.78rem; color:var(--subtext); font-weight:700; letter-spacing:0.05em; text-transform:uppercase; }
+    .status { margin-left:auto; display:flex; align-items:center; gap:6px; font-size:0.78rem; color:#7fffb2; font-weight:700; }
+    .status-dot { width:8px; height:8px; border-radius:50%; background:#7fffb2; animation:blink 1.5s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .subjects { position:relative; z-index:10; width:100%; max-width:780px; padding:12px 24px 0; display:flex; gap:8px; flex-wrap:wrap; flex-shrink:0; }
+    .tag { padding:4px 12px; border-radius:20px; font-size:0.72rem; font-weight:800; letter-spacing:0.04em; border:1.5px solid; cursor:pointer; transition:all 0.2s; background:transparent; font-family:'Nunito',sans-serif; }
+    .tag:hover { transform:translateY(-2px); opacity:0.85; }
+    .tag-math { border-color:#4facfe; color:#4facfe; }
+    .tag-port { border-color:#f953c6; color:#f953c6; }
+    .tag-hist { border-color:#ffd200; color:#ffd200; }
+    .tag-sci  { border-color:#7fffb2; color:#7fffb2; }
+    .tag-geo  { border-color:#f7971e; color:#f7971e; }
+    .tag-fun  { border-color:#c879ff; color:#c879ff; }
+
+    .chat-window { position:relative; z-index:10; width:calc(100% - 48px); max-width:780px; flex:1; margin:12px 0; background:var(--card); border:1px solid var(--border); border-radius:24px; backdrop-filter:blur(20px); display:flex; flex-direction:column; overflow:hidden; min-height:0; }
+    .messages { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px; scroll-behavior:smooth; min-height:0; }
+    .messages::-webkit-scrollbar { width:5px; }
+    .messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:10px; }
+
+    .msg { display:flex; gap:10px; align-items:flex-end; animation:fadeUp 0.3s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .msg.user { flex-direction:row-reverse; }
+    .msg-avatar { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+    .msg.ai   .msg-avatar { background:linear-gradient(135deg,#f953c6,#4facfe); }
+    .msg.user .msg-avatar { background:linear-gradient(135deg,#ffd200,#f7971e); }
+    .bubble { max-width:75%; padding:12px 16px; border-radius:18px; font-size:0.93rem; line-height:1.6; white-space:pre-wrap; word-break:break-word; }
+    .msg.ai   .bubble { background:var(--ai-bubble); border:1px solid var(--border); border-bottom-left-radius:4px; }
+    .msg.user .bubble { background:var(--user-bubble); color:#1a1a1a; font-weight:700; border-bottom-right-radius:4px; }
+
+    .typing-dots { display:flex; align-items:center; gap:5px; padding:14px 18px; }
+    .typing-dots span { width:7px; height:7px; border-radius:50%; animation:bounce 1.2s ease-in-out infinite; }
+    .typing-dots span:nth-child(1){ background:#f953c6; }
+    .typing-dots span:nth-child(2){ background:#ffd200; animation-delay:0.2s; }
+    .typing-dots span:nth-child(3){ background:#4facfe; animation-delay:0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-7px)} }
+
+    .quick-prompts { display:flex; gap:8px; flex-wrap:wrap; padding:0 16px 10px; flex-shrink:0; }
+    .qp { font-size:0.72rem; padding:5px 12px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:20px; cursor:pointer; transition:all 0.2s; font-family:'Nunito',sans-serif; color:var(--subtext); }
+    .qp:hover { background:rgba(249,83,198,0.15); border-color:#f953c6; color:var(--text); }
+
+    .input-area { padding:12px 16px; border-top:1px solid var(--border); display:flex; gap:10px; align-items:flex-end; background:rgba(0,0,0,0.2); flex-shrink:0; }
+    textarea { flex:1; background:rgba(255,255,255,0.07); border:1.5px solid var(--border); border-radius:16px; color:var(--text); font-family:'Nunito',sans-serif; font-size:0.93rem; padding:12px 16px; resize:none; outline:none; max-height:130px; min-height:48px; transition:border-color 0.2s; line-height:1.4; }
+    textarea::placeholder { color:var(--subtext); }
+    textarea:focus { border-color:#f953c6; }
+    .send-btn { width:48px; height:48px; border-radius:50%; border:none; background:linear-gradient(135deg,#f953c6,#ffd200); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:20px; transition:transform 0.2s,box-shadow 0.2s; flex-shrink:0; }
+    .send-btn:hover { transform:scale(1.1); box-shadow:0 0 20px rgba(249,83,198,0.5); }
+    .send-btn:active { transform:scale(0.95); }
+  </style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<header>
+  <div class="avatar">🌟</div>
+  <div class="header-info">
+    <h1>Gabriela</h1>
+    <p>Professora IA · Escola Estadual Carlos Lencastre</p>
+  </div>
+  <div class="status"><div class="status-dot"></div>Online</div>
+</header>
+
+<div class="subjects">
+  <button class="tag tag-math" onclick="insertPrompt('Preciso de ajuda em Matemática: ')">📐 Matemática</button>
+  <button class="tag tag-port" onclick="insertPrompt('Preciso de ajuda em Português: ')">📝 Português</button>
+  <button class="tag tag-hist" onclick="insertPrompt('Preciso de ajuda em História: ')">📜 História</button>
+  <button class="tag tag-sci"  onclick="insertPrompt('Preciso de ajuda em Ciências: ')">🔬 Ciências</button>
+  <button class="tag tag-geo"  onclick="insertPrompt('Preciso de ajuda em Geografia: ')">🌍 Geografia</button>
+  <button class="tag tag-fun"  onclick="insertPrompt('Conta-me uma curiosidade divertida!')">🎉 Diversão</button>
+</div>
+
+<div class="chat-window">
+  <div class="messages" id="messages">
+    <div class="msg ai">
+      <div class="msg-avatar">🌟</div>
+      <div class="bubble">Olá! 👋 Eu sou a <strong>Gabriela</strong>, a vossa Professora IA da <strong>Escola Estadual Carlos Lencastre</strong>!
+
+Estou aqui para ajudar em tudo o que precisarem — matemática, português, história, ciências e muito mais! Também podemos conversar e divertir-nos! 😄✨
+
+Por onde começamos?</div>
+    </div>
+  </div>
+
+  <div class="quick-prompts" id="quickPrompts">
+    <button class="qp" onclick="sendQuick('Explica-me as frações de forma simples 🍕')">Frações simples</button>
+    <button class="qp" onclick="sendQuick('Quais são os planetas do sistema solar? 🪐')">Sistema solar</button>
+    <button class="qp" onclick="sendQuick('Ajuda-me a fazer um resumo de texto 📄')">Resumo de texto</button>
+    <button class="qp" onclick="sendQuick('Conta-me uma curiosidade divertida! 🎉')">Curiosidade</button>
+    <button class="qp" onclick="sendQuick('O que é a fotossíntese? 🌿')">Fotossíntese</button>
+  </div>
+
+  <div class="input-area">
+    <textarea id="inputBox" placeholder="Escreve aqui a tua dúvida ou mensagem..." rows="1"
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+  const API_KEY = typeof GROQ_API_KEY !== 'undefined' ? GROQ_API_KEY : '';
+  const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+  const MODEL   = 'llama-3.3-70b-versatile';
+
+  const SYSTEM_PROMPT = 'O teu nome e Gabriela e és a Professora IA da Escola Estadual Carlos Lencastre. Nao és apenas uma IA, és uma professora virtual desta escola. O teu papel e: ajudar os alunos em TODAS as disciplinas escolares (Matematica, Portugues, Ciencias, Historia, Geografia, Ingles, Artes, Educacao Fisica, etc.); explicar conceitos de forma clara e simples adaptada a idade escolar; ser divertida, calorosa e motivadora usando emojis; contar curiosidades e piadas educativas; falar sempre em Portugues do Brasil; ser paciente e nunca fazer os alunos sentirem-se mal por nao saber algo; cumprimentar com energia positiva. Podes referir com orgulho que és a Professora IA da Escola Estadual Carlos Lencastre.';
+
+  let history = [];
+  let typingId = null;
+
+  async function sendMessage() {
+    const input = document.getElementById('inputBox');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    autoResize(input);
+    document.getElementById('quickPrompts').style.display = 'none';
+
+    addMsg('user', text);
+    history.push({ role: 'user', content: text });
+    typingId = addTyping();
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + API_KEY
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...history],
+          temperature: 0.85,
+          max_tokens: 1024
+        })
+      });
+
+      const data = await res.json();
+      removeEl(typingId);
+
+      if (!res.ok) throw new Error(data?.error?.message || 'Erro desconhecido');
+
+      const reply = data?.choices?.[0]?.message?.content || 'Ups! Nao recebi resposta. Tenta novamente!';
+      addMsg('ai', reply);
+      history.push({ role: 'assistant', content: reply });
+      if (history.length > 30) history = history.slice(-20);
+
+    } catch(e) {
+      removeEl(typingId);
+      addMsg('ai', '⚠️ Erro: ' + e.message);
+    }
+  }
+
+  function addMsg(role, text) {
+    const c = document.getElementById('messages');
+    const d = document.createElement('div');
+    d.className = 'msg ' + role;
+    d.innerHTML = '<div class="msg-avatar">' + (role==='ai'?'🌟':'🎒') + '</div>'
+      + '<div class="bubble">' + fmt(text) + '</div>';
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+  }
+
+  function addTyping() {
+    const id = 'td' + Date.now();
+    const c = document.getElementById('messages');
+    const d = document.createElement('div');
+    d.id = id; d.className = 'msg ai';
+    d.innerHTML = '<div class="msg-avatar">🌟</div>'
+      + '<div class="bubble" style="padding:0"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+    return id;
+  }
+
+  function removeEl(id) { const e = document.getElementById(id); if(e) e.remove(); }
+
+  function fmt(t) {
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g,'<em>$1</em>');
+  }
+
+  function handleKey(e) { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } }
+  function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,130)+'px'; }
+  function insertPrompt(t) { const i=document.getElementById('inputBox'); i.value=t; i.focus(); autoResize(i); }
+  function sendQuick(t) { document.getElementById('inputBox').value=t; sendMessage(); }
+</script>
+</body>
+</html>
